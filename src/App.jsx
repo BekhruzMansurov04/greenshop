@@ -18,7 +18,6 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/Main" element={<Hero />} />
         <Route path="/SignIn" element={<SignIn />} />
         <Route path="/SignUp" element={<SignUp />} />
         <Route
@@ -37,6 +36,14 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/main"
+          element={
+            <PrivateRoute>
+              <Hero/>
+            </PrivateRoute>
+          }
+        />v
         <Route
           path="/productCard"
           element={

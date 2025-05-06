@@ -31,7 +31,6 @@ const Shop = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      {/* Search bar */}
       <div className="flex items-center gap-2 mb-6">
         <FaSearch className="text-gray-500" />
         <input
@@ -43,7 +42,6 @@ const Shop = () => {
         />
       </div>
 
-      {/* Grid of blog cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {blogs.map((blog) => (
           <div

@@ -33,16 +33,24 @@ const Profile = () => {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, type: "", message: "" });
+  const [userId, setUserId] = useState(null);
 
-  const token = "6803b89df2a99d0247959d1a";
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const getUserDetails = async () => {
       try {
         const { data } = await axios.get(
-          `https://green-shop-backend.onrender.com/api/user/account-details?access_token=${token}`
+          "https://green-shop-backend.onrender.com/api/user/account-details",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
+
         const user = data.user || {};
+        setUserId(user._id);
 
         setFormData({
           firstName: user.name || "",
@@ -66,8 +74,8 @@ const Profile = () => {
       }
     };
 
-    getUserDetails();
-  }, []);
+    if (token) getUserDetails();
+  }, [token]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -87,8 +95,8 @@ const Profile = () => {
 
     try {
       const dataToSend = new FormData();
-      dataToSend.append("firstName", formData.name);
-      dataToSend.append("lastName", formData.surname);
+      dataToSend.append("firstName", formData.firstName);
+      dataToSend.append("lastName", formData.lastName);
       dataToSend.append("email", formData.email);
       dataToSend.append("phoneNumber", formData.phoneNumber);
       dataToSend.append("username", formData.username);
@@ -97,11 +105,12 @@ const Profile = () => {
       }
 
       await axios.put(
-        `https://green-shop-backend.onrender.com/api/user/by_id/:_id?access_token=${token}`,
+        `https://green-shop-backend.onrender.com/api/user/by_id/${userId}`,
         dataToSend,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -125,7 +134,6 @@ const Profile = () => {
 
   return (
     <Box className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 py-10 gap-6">
-      {/* Left menu */}
       <Box className="w-full md:w-1/4 bg-white rounded-lg shadow-md p-4">
         <Typography variant="h6" className="text-green-600 font-semibold mb-4">
           My Account
@@ -154,12 +162,11 @@ const Profile = () => {
         </div>
       </Box>
 
-      {/* Profile form */}
       <Box className="w-full md:w-3/4 bg-white rounded-lg shadow-md p-6">
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <TextField
             label="First name"
-            name="name"
+            name="firstName"
             value={formData.firstName}
             onChange={handleChange}
             fullWidth
@@ -167,7 +174,7 @@ const Profile = () => {
           />
           <TextField
             label="Last name"
-            name="surname"
+            name="lastName"
             value={formData.lastName}
             onChange={handleChange}
             fullWidth
@@ -198,7 +205,6 @@ const Profile = () => {
             required
           />
 
-          {/* Profile photo upload */}
           <Box className="flex items-center gap-3 col-span-1 md:col-span-2">
             <Avatar src={preview} sx={{ width: 48, height: 48 }} />
             <Button variant="outlined" component="label">
@@ -220,7 +226,6 @@ const Profile = () => {
         </form>
       </Box>
 
-      {/* Snackbar notification */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
