@@ -3,8 +3,8 @@ import Navbar from "./Header/header";
 import Footer from "./Footer/footer";
 import Hero from "./components/Main";
 import Home from "./components/Home";
-import SignIn from "./auth/SignIn";
-import SignUp from "./auth/SignUp";
+import SignIn from "./auth/signIn";
+import SignUp from "./auth/signUp";
 import Dashboard from "./components/Dashboard";
 import Profile from "./components/Profile";
 import ProductCard from "./pages/productCard";
@@ -18,8 +18,8 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/SignIn" element={<SignIn />} />
-        <Route path="/SignUp" element={<SignUp />} />
+        <Route path="/signIn" element={<SignIn />} />
+        <Route path="/signUp" element={<SignUp />} />
         <Route
           path="/profile"
           element={
