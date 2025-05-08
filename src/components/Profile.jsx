@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -21,6 +21,8 @@ import {
 } from "react-icons/fa";
 
 const Profile = () => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -132,6 +134,12 @@ const Profile = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
   return (
     <Box className="flex flex-col md:flex-row w-full max-w-7xl mx-auto px-4 py-10 gap-6">
       <Box className="w-full md:w-1/4 bg-white rounded-lg shadow-md p-4">
@@ -155,8 +163,12 @@ const Profile = () => {
             <FaTruck /> Track Order
           </li>
         </ul>
+
         <div className="mt-4 border-t pt-4">
-          <button className="flex items-center gap-2 text-red-500 hover:underline">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-red-500 hover:underline"
+          >
             <FaSignOutAlt /> Log out
           </button>
         </div>

@@ -1,28 +1,99 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useLocation } from "react-router-dom";
+import { FiPlus, FiMinus, FiTrash2 } from "react-icons/fi";
 
 const ProductCard = () => {
-  const [categories, setCategories] = useState([]);
-  const token = "6803b89df2a99d0247959d1a"; 
+  const location = useLocation();
+  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(`https://green-shop-backend.onrender.com/api/flower/category?access_token=${token}`)
-      .then((res) => setCategories(res.data.data))
-      .catch((err) => console.error("Kategoriya olishda xatolik:", err));
-  }, []);
+    if (location.state?.product) {
+      const product = location.state.product;
+      const savedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+      const existingIndex = savedCart.findIndex((item) => item._id === product._id);
+
+      if (existingIndex !== -1) {
+        savedCart[existingIndex].quantity = (savedCart[existingIndex].quantity || 1) + 1;
+      } else {
+        savedCart.push({ ...product, quantity: 1 });
+      }
+
+      localStorage.setItem("cartItems", JSON.stringify(savedCart));
+      setCartItems(savedCart);
+    } else {
+      const saved = JSON.parse(localStorage.getItem("cartItems")) || [];
+      setCartItems(saved);
+    }
+  }, [location.state]);
+
+  const updateCart = (updatedItems) => {
+    setCartItems(updatedItems);
+    localStorage.setItem("cartItems", JSON.stringify(updatedItems));
+  };
+
+  const increaseQuantity = (id) => {
+    const updated = cartItems.map((item) =>
+      item._id === id ? { ...item, quantity: item.quantity + 1 } : item
+    );
+    updateCart(updated);
+  };
+
+  const decreaseQuantity = (id) => {
+    const updated = cartItems
+      .map((item) =>
+        item._id === id ? { ...item, quantity: item.quantity - 1 } : item
+      )
+      .filter((item) => item.quantity > 0); 
+    updateCart(updated);
+  };
+
+  const removeItem = (id) => {
+    const updated = cartItems.filter((item) => item._id !== id);
+    updateCart(updated);
+  };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <h2 className="text-2xl font-bold mb-6">Kategoriyalar</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {categories.map((category) => (
-          <div key={category._id} className="p-4 border rounded shadow hover:shadow-md transition">
-            <h3 className="text-lg font-semibold">{category.title}</h3>
-            <p className="text-gray-500">Route: <span className="text-green-600">{category.route_path}</span></p>
-          </div>
-        ))}
-      </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">🛒 Savatchadagi mahsulotlar</h1>
+
+      {cartItems.length === 0 ? (
+        <p className="text-gray-500">Savat bo'sh.</p>
+      ) : (
+        <div className="grid gap-4">
+          {cartItems.map((item) => (
+            <div key={item._id} className="border rounded p-4 flex gap-4 items-center">
+              <img src={item.main_image} alt={item.title} className="w-24 h-24 object-cover rounded" />
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold">{item.title}</h2>
+                <p className="text-sm text-gray-500">{item.short_description}</p>
+                <p className="text-green-600 font-bold mt-2">${item.price}</p>
+
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    onClick={() => decreaseQuantity(item._id)}
+                    className="p-1 rounded-full border hover:bg-gray-100"
+                  >
+                    <FiMinus />
+                  </button>
+                  <span className="font-semibold">{item.quantity}</span>
+                  <button
+                    onClick={() => increaseQuantity(item._id)}
+                    className="p-1 rounded-full border hover:bg-gray-100"
+                  >
+                    <FiPlus />
+                  </button>
+                  <button
+                    onClick={() => removeItem(item._id)}
+                    className="ml-4 p-1 rounded-full border text-red-500 hover:bg-red-50"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
